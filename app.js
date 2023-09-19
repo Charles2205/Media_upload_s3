@@ -1,19 +1,30 @@
 const {S3Client,PutObjectCommand}= require('@aws-sdk/client-s3')
-const dotEnv = require('dotenv')
-dotEnv.config()
-const ACCESS_KEY_ID = process.env.ACCESS_KEY
-const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY
-const REGION = process.env.REGION 
-const URL = process.env.URL
+const fs =require('fs')
+const dotEnv = require('dotenv').config()
 
 
 const s3Client = new S3Client({
-    region:REGION,
-    endpoint :URL,
+    region:process.env.REGION,
+    endpoint :process.env.URL,
     credentials:{
-        accessKeyId:ACCESS_KEY_ID,
-        secretAccessKey:SECRET_ACCESS_KEY,
+        accessKeyId:process.env.ACCESS_KEY_ID,
+        secretAccessKey:process.env.SECRET_ACCESS_KEY,
     }
-    
-
 })
+
+
+const uploadFile =async()=>{
+    try {
+        const fileContent = fs.readFileSync('Abena.JPG')
+        const object= new PutObjectCommand({
+            Bucket:process.env.BUCKET_NAME,
+            Key:'Abena.JPG',
+            Body: fileContent
+
+        })
+        await s3Client.send(object)
+    } catch (error) {
+        console.log(error);
+    }
+}
+uploadFile()
